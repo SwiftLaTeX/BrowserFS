@@ -41,7 +41,7 @@ function onErrorHandler(cb: (e: ApiError) => void, code: ErrorCode = ErrorCode.E
  */
 function sanitizeKey(key: string) {
   if(key.endsWith("/")) {
-    const DELIMITER = "_DiR_mImiC_";
+    const DELIMITER = "_DiR_Root_";
     return key.substring(0, key.length - 1) + DELIMITER;
   } else {
     return key;
@@ -146,8 +146,8 @@ export class S3Store implements AsyncKeyValueStore {
     // Preflight test
     s3.putObject({
       Bucket: opts.storeName,
-      Key: opts.prefix + 'swiftlatex.txt',
-      Body: 'Hello world',
+      Key: opts.prefix + 'manifest.txt',
+      Body: Date.now().toString(),
     }, function(err: any, data: any) {
       if (err) {
         onErrorHandler(cb, ErrorCode.EACCES);
