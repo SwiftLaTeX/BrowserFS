@@ -36,6 +36,19 @@ function onErrorHandler(cb: (e: ApiError) => void, code: ErrorCode = ErrorCode.E
 }
 
 /**
+ * It is a fix for minio as minio is not real key/value storage as S3, so no support for "/"
+ * @hidden
+ */
+function sanitizeKey(key: string) {
+  if(key.endsWith("/")) {
+    const DELIMITER = "_DiR_mImiC_";
+    return key.substring(0, key.length - 1) + DELIMITER;
+  } else {
+    return key;
+  }
+}
+
+/**
  * @hidden
  */
 export class S3ROTransaction implements AsyncKeyValueROTransaction {
@@ -45,7 +58,7 @@ export class S3ROTransaction implements AsyncKeyValueROTransaction {
     try {
       this.db.getObject({
         Bucket: this.s3opts.storeName,
-        Key: this.s3opts.prefix + key,
+        Key: this.s3opts.prefix + sanitizeKey(key),
       }, function(err: any, data: any) {
         if (err) {
           if (err.code === 'NoSuchKey') {
@@ -54,7 +67,7 @@ export class S3ROTransaction implements AsyncKeyValueROTransaction {
             onErrorHandler(cb);
           }
         } else {
-          cb(null, arrayBuffer2Buffer(data.body));
+          cb(null, arrayBuffer2Buffer(data.Body));
         }
       });
     } catch (e) {
@@ -78,7 +91,7 @@ export class S3RWTransaction extends S3ROTransaction implements AsyncKeyValueRWT
       }
       this.db.upload({
       Bucket: this.s3opts.storeName,
-      Key: this.s3opts.prefix + key,
+      Key: this.s3opts.prefix + sanitizeKey(key),
       Body: data,
       }, function(err: any) {
         if (err) {
@@ -96,7 +109,7 @@ export class S3RWTransaction extends S3ROTransaction implements AsyncKeyValueRWT
     try {
       this.db.upload({
       Bucket: this.s3opts.storeName,
-      Key: this.s3opts.prefix + key,
+      Key: this.s3opts.prefix + sanitizeKey(key),
       }, function(err: any) {
         if (err) {
           onErrorHandler(cb);
