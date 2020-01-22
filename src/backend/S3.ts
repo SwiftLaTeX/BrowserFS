@@ -124,7 +124,7 @@ export class S3RWTransaction extends S3ROTransaction implements AsyncKeyValueRWT
 
   public commit(cb: BFSOneArgCallback): void {
     // Return to the event loop to commit the transaction.
-    cb();
+    setTimeout(cb, 0);
   }
 
   public abort(cb: BFSOneArgCallback): void {
@@ -139,6 +139,7 @@ export class S3Store implements AsyncKeyValueStore {
       apiVersion: '2006-03-01',
       accessKeyId: opts.apiKey,
       secretAccessKey: opts.apiSecret,
+      sessionToken: opts.sessionToken,
       endpoint: opts.endpoint,
       s3ForcePathStyle: true,
       signatureVersion: 'v4'

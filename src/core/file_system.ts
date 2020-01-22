@@ -703,6 +703,8 @@ export class BaseFileSystem {
       try {
         if (typeof data === 'string') {
           data = Buffer.from(data, encoding!);
+        } else if(__isArrayBuffer(data) || __isTypedArray(data)) {
+          data = Buffer.from(data);
         }
       } catch (e) {
         return cb(e);
@@ -716,7 +718,9 @@ export class BaseFileSystem {
     const fd = this.openSync(fname, flag, mode);
     try {
       if (typeof data === 'string') {
-        data = Buffer.from(data, encoding!);
+          data = Buffer.from(data, encoding!);
+      } else if(__isArrayBuffer(data) || __isTypedArray(data)) {
+          data = Buffer.from(data);
       }
       // Write into file.
       fd.writeSync(data, 0, data.length, 0);
@@ -737,7 +741,9 @@ export class BaseFileSystem {
         });
       };
       if (typeof data === 'string') {
-        data = Buffer.from(data, encoding!);
+          data = Buffer.from(data, encoding!);
+      } else if(__isArrayBuffer(data) || __isTypedArray(data)) {
+          data = Buffer.from(data);
       }
       fd!.write(data, 0, data.length, null, cb);
     });
@@ -746,7 +752,9 @@ export class BaseFileSystem {
     const fd = this.openSync(fname, flag, mode);
     try {
       if (typeof data === 'string') {
-        data = Buffer.from(data, encoding!);
+          data = Buffer.from(data, encoding!);
+      } else if(__isArrayBuffer(data) || __isTypedArray(data)) {
+          data = Buffer.from(data);
       }
       fd.writeSync(data, 0, data.length, null);
     } finally {
@@ -912,4 +920,20 @@ export class SynchronousFileSystem extends BaseFileSystem {
       cb(e);
     }
   }
+}
+
+function __isTypedArray(inArray: any) 
+{
+    if (typeof inArray === 'object') {
+      const prototype = Object.getPrototypeOf(inArray);
+      return prototype ? prototype.hasOwnProperty("BYTES_PER_ELEMENT") : false;
+    }
+    return false;
+};
+
+function __isArrayBuffer(value: any) {
+  if (typeof value === 'object') {
+  return (value instanceof ArrayBuffer || toString.call(value) === '[object ArrayBuffer]');
+  } 
+  return false;
 }

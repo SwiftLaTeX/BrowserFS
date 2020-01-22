@@ -1,12 +1,10 @@
 import {FileSystemConstructor, BFSCallback, FileSystem} from './file_system';
 import {ApiError} from './api_error';
 import {checkOptions} from './util';
-import InMemory from '../backend/InMemory';
-import IndexedDB from '../backend/IndexedDB';
 import S3FS from '../backend/S3';
 
 // Monkey-patch `Create` functions to check options before file system initialization.
-[S3FS, InMemory, IndexedDB].forEach((fsType: FileSystemConstructor) => {
+[S3FS].forEach((fsType: FileSystemConstructor) => {
   const create = fsType.Create;
   fsType.Create = function(opts?: any, cb?: BFSCallback<FileSystem>): void {
     const oneArg = typeof(opts) === "function";
@@ -28,7 +26,7 @@ import S3FS from '../backend/S3';
 /**
  * @hidden
  */
-const Backends = { S3FS, InMemory, IndexedDB };
+const Backends = { S3FS };
 // Make sure all backends cast to FileSystemConstructor (for type checking)
 const _: {[name: string]: FileSystemConstructor} = Backends;
 // tslint:disable-next-line:no-unused-expression
