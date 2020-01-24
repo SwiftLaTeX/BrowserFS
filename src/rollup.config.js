@@ -16,7 +16,7 @@ export default {
     exports: 'named'
   },
   external: [
-    'buffer', 'path'
+    'buffer', 'path', 'aws-sdk'
   ],
   plugins: [
     alias({

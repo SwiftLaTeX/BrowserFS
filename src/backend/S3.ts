@@ -2,7 +2,7 @@ import {BFSOneArgCallback, BFSCallback, FileSystemOptions} from '../core/file_sy
 import {AsyncKeyValueROTransaction, AsyncKeyValueRWTransaction, AsyncKeyValueStore, AsyncKeyValueFileSystem} from '../generic/key_value_filesystem';
 import {ApiError, ErrorCode} from '../core/api_error';
 import {arrayBuffer2Buffer} from '../core/util';
-import * as AWS from "aws-sdk";
+import {S3} from "aws-sdk";
 
 /**
  * Converts a DOMException or a DOMError from an IndexedDB event into a
@@ -52,7 +52,7 @@ function sanitizeKey(key: string) {
  * @hidden
  */
 export class S3ROTransaction implements AsyncKeyValueROTransaction {
-  constructor(protected db: AWS.S3, protected s3opts: S3FileSystemOptions) { }
+  constructor(protected db: S3, protected s3opts: S3FileSystemOptions) { }
 
   public get(key: string, cb: BFSCallback<Buffer>): void {
     try {
@@ -80,7 +80,7 @@ export class S3ROTransaction implements AsyncKeyValueROTransaction {
  * @hidden
  */
 export class S3RWTransaction extends S3ROTransaction implements AsyncKeyValueRWTransaction, AsyncKeyValueROTransaction {
-  constructor(db: AWS.S3, s3opts: S3FileSystemOptions) {
+  constructor(db: S3, s3opts: S3FileSystemOptions) {
     super(db, s3opts);
   }
 
@@ -135,7 +135,7 @@ export class S3RWTransaction extends S3ROTransaction implements AsyncKeyValueRWT
 
 export class S3Store implements AsyncKeyValueStore {
   public static Create(opts: S3FileSystemOptions, cb: BFSCallback<S3Store>): void {
-    const s3 = new AWS.S3({
+    const s3 = new S3({
       apiVersion: '2006-03-01',
       accessKeyId: opts.apiKey,
       secretAccessKey: opts.apiSecret,
@@ -158,7 +158,7 @@ export class S3Store implements AsyncKeyValueStore {
     });
   }
 
-  constructor(private db: AWS.S3, private s3opts: S3FileSystemOptions) {
+  constructor(private db: S3, private s3opts: S3FileSystemOptions) {
 
   }
 
